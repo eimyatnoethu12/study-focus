@@ -15,7 +15,7 @@
     <!-- Input form -->
     <form id="focus-form">
         <div class="form__group field">
-            <input type="input" class="form__field" id="study-url" placeholder="Study Link:" required="">
+            <input type="url" class="form__field" id="study-url" placeholder="Study Link:" required="">
             <label for="name" class="form__label">Study Link:</label>
         </div>
         <br>
@@ -49,6 +49,19 @@
       <webview id="study-frame" class="study-frame"></webview>
     </div>
   </div>
+
+   <div class="item-card">
+    <div class="item">
+			<i class="loader loader--2" style="--anim-duration:15s;"></i>
+	</div>
+
+   <div class="item">
+			<i class="loader loader--6" style="top:unset; right: unset; bottom:20%; left:20%;--anim-duration:15s;"></i>
+	</div>
+    <div class="item">
+			<i class="loader loader--6"></i>
+	</div>
+   </div>
 <script>
   const { ipcRenderer } = require('electron');
 
@@ -59,6 +72,7 @@
   const countdown = document.getElementById('countdown');
   const studyFrame = document.getElementById('study-frame');
   const heading = document.querySelector('.heading');
+  const item = document.querySelector('.item-card');
 
   // Format seconds into HH:MM:SS
   const formatTime = (totalSeconds) => {
@@ -78,6 +92,7 @@
     form.style.display = 'none';
     closeBtn.style.display = 'none';
     heading.style.display = 'none';
+    item.style.display = 'none';
     focusArea.style.display = 'block';
 
     let url = document.getElementById('study-url').value;
