@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusLock Pro</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+     <div class="heading">
+        <h1>🔒 Focus Mode</h1>
+        <button id="close-app" class="close-btn">❌</button>
+     </div>
+    <!-- Input form -->
+    <form id="focus-form">
+        <div class="form__group field">
+            <input type="input" class="form__field" id="study-url" placeholder="Study Link:" required="">
+            <label for="name" class="form__label">Study Link:</label>
+        </div>
+        <br>
+         <div class="form__group field">
+    <input type="number" class="form__field" id="focus-hours" placeholder="Hours" min="0" value="0" required>
+    <label for="focus-hours" class="form__label">Hours</label>
+</div>
+<br>
+<div class="form__group field">
+  <input type="number" class="form__field" id="focus-minutes" placeholder="Minutes" min="0" value="0" required>
+  <label for="focus-minutes" class="form__label">Minutes</label>
+</div>
+<br>
+<div class="form__group field">
+  <input type="number" class="form__field" id="focus-seconds" placeholder="Seconds" min="0" value="0" required>
+  <label for="focus-seconds" class="form__label">Seconds</label>
+</div>
+        <br>
+        <button class="focus-btn" >
+            <span class="focus-txt" type="submit" id="focus">If you click this will start count!</span>
+            <span>
+                Start Focus
+            </span>
+        </button>
+    </form>
+
+    <!-- Focus area (hidden until start) -->
+    <div id="focus-area" style="display: none;">
+      <p class="message">Stay focused! This screen will close in <span id="countdown"></span> seconds.</p>
+      <!-- <iframe id="study-frame" class="study-frame"></iframe> -->
+      <webview id="study-frame" class="study-frame"></webview>
+    </div>
+  </div>
+<script>
+  const { ipcRenderer } = require('electron');
+
+  const closeBtn = document.querySelector('.close-btn');
+  const focusBtn = document.getElementById('focus');
+  const form = document.getElementById('focus-form');
+  const focusArea = document.getElementById('focus-area');
+  const countdown = document.getElementById('countdown');
+  const studyFrame = document.getElementById('study-frame');
+  const heading = document.querySelector('.heading');
+
+  // Format seconds into HH:MM:SS
+  const formatTime = (totalSeconds) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  closeBtn.addEventListener('click', () => {
+    ipcRenderer.send('close-app');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    form.style.display = 'none';
+    closeBtn.style.display = 'none';
+    heading.style.display = 'none';
+    focusArea.style.display = 'block';
+
+    let url = document.getElementById('study-url').value;
+    let hours = parseInt(document.getElementById('focus-hours').value, 10) || 0;
+    let minutes = parseInt(document.getElementById('focus-minutes').value, 10) || 0;
+    let seconds = parseInt(document.getElementById('focus-seconds').value, 10) || 0;
+
+    let timeLeft = (hours * 3600) + (minutes * 60) + seconds;
+
+    studyFrame.src = url;
+    countdown.textContent = formatTime(timeLeft);
+
+    const timer = setInterval(() => {
+      timeLeft--;
+      countdown.textContent = formatTime(timeLeft);
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        closeBtn.style.display = 'block';
+        ipcRenderer.send('close-app');
+      }
+    }, 1000);
+  });
+</script>
+
+</body>
+</html>
